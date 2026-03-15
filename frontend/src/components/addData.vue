@@ -14,10 +14,10 @@ import AutoComplete from "primevue/autocomplete";
 
 import { addDiscovery } from "@/state/discoveries.js";
 import { categories, addCategory } from "@/state/categories.js";
-import {authState} from "@/state/auth.ts";
+import { authState } from "@/state/auth.ts";
 
 const form = reactive({
-  userId: authState.value.id,
+	userId: authState.value.id,
 	name: "",
 	category: "",
 	location: "",
@@ -31,8 +31,9 @@ const errors = reactive({});
 const locationSuggestions = ref([]);
 
 const searchLocation = async event => {
-	const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${event.query}`);
+	const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&q=${event.query}`);
 	const data = await res.json();
+	console.log("Location search results:", data);
 	locationSuggestions.value = data.map(p => ({
 		label: p.display_name,
 		lat: p.lat,
@@ -94,9 +95,9 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 
 <template>
 	<div>
-    <Button link>
-      <RouterLink to="/">Go back</RouterLink>
-    </Button>
+		<Button link>
+			<RouterLink to="/">Go back</RouterLink>
+		</Button>
 
 		<form @submit.prevent="handleSubmit" class="form">
 			<div class="form-row">
