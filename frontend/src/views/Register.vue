@@ -38,16 +38,20 @@ const handleRegister = async () => {
 		return;
 	}
 
-	const existingUser = await api.getUserByUsername(username);
+	const existingUser = await api.getUserByUsername(username, true);
 	if (existingUser) {
 		errors.value.username = "Username is already taken";
 		return;
 	}
 
-	const newUser = await api.post(Entity.User, {
-		username,
-		password,
-	});
+	const newUser = await api.post(
+		Entity.User,
+		{
+			username,
+			password,
+		},
+		true,
+	);
 	authState.value = {
 		isLoggedIn: true,
 		username: newUser.username,
