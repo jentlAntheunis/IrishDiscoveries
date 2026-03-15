@@ -19,7 +19,6 @@ public class Location {
     private Double longitude;
     private Double latitude;
     private String mapsUrl;
-
     private String city;
     private String county;
     private String postcode;
