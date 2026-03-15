@@ -3,6 +3,8 @@ package irishdiscoveries.backend.api;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import irishdiscoveries.backend.domain.Category;
@@ -18,27 +20,65 @@ public class CategoryController {
     }
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            List<Category> categories = categoryService.getAllCategories();
+            return ResponseEntity.ok(categories);
+        } catch (Exception e) {
+            return handleException(e);
+        }
     }
 
     @GetMapping("/{id}")
-    public Category getCategoryById(@PathVariable UUID id) {
-        return categoryService.getCategoryById(id);
+    public ResponseEntity<?> getCategoryById(@PathVariable UUID id) {
+        try {
+            Category category = categoryService.getCategoryById(id);
+            return ResponseEntity.ok(category);
+        } catch (Exception e) {
+            return handleException(e);
+        }
     }
 
     @PostMapping
-    public Category createCategory(Category category) {
-        return categoryService.createCategory(category);
+    public ResponseEntity<?> createCategory(@RequestBody Category category) {
+        try {
+            Category createdCategory = categoryService.createCategory(category);
+            return ResponseEntity.status(HttpStatus.CREATED).body(createdCategory);
+        } catch (Exception e) {
+            return handleException(e);
+        }
     }
 
     @PatchMapping("/{id}")
-    public Category updateCategory(@PathVariable UUID id, Category category) {
-        return categoryService.updateCategory(id, category);
+    public ResponseEntity<?> updateCategory(@PathVariable UUID id, @RequestBody Category category) {
+        try {
+            Category updatedCategory = categoryService.updateCategory(id, category);
+            return ResponseEntity.ok(updatedCategory);
+        } catch (Exception e) {
+            return handleException(e);
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void deleteCategory(@PathVariable UUID id) {
-        categoryService.deleteCategory(id);
+    public ResponseEntity<?> deleteCategory(@PathVariable UUID id) {
+        try {
+            categoryService.deleteCategory(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return handleException(e);
+        }
+    }
+
+    private ResponseEntity<String> handleException(Exception e) {
+        if (e instanceof IllegalArgumentException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
+        String message = e.getMessage() != null ? e.getMessage() : "Unexpected error";
+        if (message.toLowerCase().contains("not found")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
+        }
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
     }
 }
