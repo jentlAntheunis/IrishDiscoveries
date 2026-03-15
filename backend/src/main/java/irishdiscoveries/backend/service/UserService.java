@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import irishdiscoveries.backend.domain.User;
+import irishdiscoveries.backend.dto.UserLoginDTO;
 import irishdiscoveries.backend.repository.UserRepository;
 
 @Service
@@ -41,5 +42,13 @@ public class UserService {
 
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
+    }
+
+    public User loginUser(UserLoginDTO user) {
+        User foundUser = userRepository.findByUsername(user.getUsername());
+        if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
+            return foundUser;
+        }
+        throw new RuntimeException("Invalid username or password");
     }
 }

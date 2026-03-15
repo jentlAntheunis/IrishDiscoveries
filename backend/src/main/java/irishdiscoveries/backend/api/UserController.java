@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import irishdiscoveries.backend.service.UserService;
 import irishdiscoveries.backend.domain.User;
+import irishdiscoveries.backend.dto.UserLoginDTO;
 
 @RestController
 @RequestMapping("/users")
@@ -40,5 +41,10 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
+    }
+
+    @PostMapping("/login")
+    public User loginUser(@RequestBody UserLoginDTO user) {
+        return userService.loginUser(user);
     }
 }
