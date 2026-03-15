@@ -26,3 +26,8 @@ a,
   /*  padding: 0 2rem;*/
   /*}*/
 }
+
+
+.w-full {
+	width: 100%;
+}

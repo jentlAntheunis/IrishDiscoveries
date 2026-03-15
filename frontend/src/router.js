@@ -1,15 +1,19 @@
-import { createMemoryHistory, createRouter } from 'vue-router'
+import { createWebHistory, createRouter } from "vue-router";
 
-import Table from './components/Table.vue'
+import Table from "./components/Table.vue";
 import AddData from "@/components/addData.vue";
+import Login from "@/views/Login.vue";
+import Register from "@/views/Register.vue";
 
 const routes = [
-    { path: '/', redirect: '/table', component: Table },
-    { path: '/table', component: Table },
-    { path: '/add', component: AddData },
-]
+	{ path: "/", redirect: "/login", component: Login },
+	{ path: "/login", component: Login },
+	{ path: "/register", component: Register },
+	{ path: "/dashboard", component: Table },
+	{ path: "/add", component: AddData },
+];
 
 export const router = createRouter({
-    history: createMemoryHistory(),
-    routes,
-})
+	history: createWebHistory(),
+	routes,
+});
