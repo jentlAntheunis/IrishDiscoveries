@@ -24,6 +24,15 @@
                 "/@fs/*": "${workspaceFolder}/frontend/*"
             },
             "preLaunchTask": "npm: dev - frontend"
+        },
+        {
+            "type": "java",
+            "request": "launch",
+            "name": "Backend",
+            "mainClass": "irishdiscoveries.backend.BackendApplication",
+            "projectName": "backend",
+            "console": "integratedTerminal",
+            "preLaunchTask": "java (build): Build Workspace"
         }
     ]
 }
