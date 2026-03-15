@@ -51,4 +51,8 @@ public class UserService {
         }
         throw new RuntimeException("Invalid username or password");
     }
+
+    public User getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }

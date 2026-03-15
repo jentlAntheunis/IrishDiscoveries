@@ -47,4 +47,9 @@ public class UserController {
     public User loginUser(@RequestBody UserLoginDTO user) {
         return userService.loginUser(user);
     }
+
+    @GetMapping("/username/{username}")
+    public User getUserByUsername(@PathVariable String username) {
+        return userService.getUserByUsername(username);
+    }
 }
