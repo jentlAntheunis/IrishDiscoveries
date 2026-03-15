@@ -12,8 +12,6 @@ import Rating from "primevue/rating";
 
 import AutoComplete from "primevue/autocomplete";
 
-import { addDiscovery } from "@/state/discoveries.js";
-import { categories, addCategory } from "@/state/categories.js";
 import { authState } from "@/state/auth.ts";
 
 const form = reactive({

@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from "vue";
-import { discoveries } from "@/state/discoveries.js";
 import { authState } from "@/state/auth.ts";
 
 import Button from "primevue/button";
