@@ -51,9 +51,9 @@ async function deleteById(entity, id, log = false) {
 
 async function getUserByUsername(username, log = false) {
 	try {
-		const res = await axios.get(BASE_URL + Entity.User + "/username/" + encodeURIComponent(username));
+		const res = await axios.get(BASE_URL + Entity.User + "/by-username/" + encodeURIComponent(username));
 		if (log) {
-			console.log("GET", BASE_URL + Entity.User + "/username/" + encodeURIComponent(username));
+			console.log("GET", BASE_URL + Entity.User + "/by-username/" + encodeURIComponent(username));
 		}
 		return res.data;
 	} catch (error) {
