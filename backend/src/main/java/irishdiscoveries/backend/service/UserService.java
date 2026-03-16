@@ -10,27 +10,31 @@ import irishdiscoveries.backend.dto.UserLoginDTO;
 import irishdiscoveries.backend.repository.UserRepository;
 
 @Service
-public class UserService {
+public class UserService implements CrudService<User> {
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
+    @Override
+    public List<User> getAll() {
         return userRepository.findAll();
     }
 
-    public User getUserById(UUID id) {
+    @Override
+    public User getById(UUID id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public User createUser(User user) {
+    @Override
+    public User create(User user) {
         return userRepository.save(user);
     }
 
-    public User updateUser(UUID id, User user) {
-        User existingUser = getUserById(id);
+    @Override
+    public User update(UUID id, User user) {
+        User existingUser = getById(id);
         if (user.getUsername() != null) {
             existingUser.setUsername(user.getUsername());
         }
@@ -40,7 +44,8 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    public void deleteUser(UUID id) {
+    @Override
+    public void delete(UUID id) {
         userRepository.deleteById(id);
     }
 

@@ -9,27 +9,31 @@ import irishdiscoveries.backend.domain.Location;
 import irishdiscoveries.backend.repository.LocationRepository;
 
 @Service
-public class LocationService {
+public class LocationService implements CrudService<Location> {
     private final LocationRepository locationRepository;
 
     public LocationService(LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
     }
 
-    public List<Location> getAllLocations() {
+    @Override
+    public List<Location> getAll() {
         return locationRepository.findAll();
     }
 
-    public Location getLocationById(UUID id) {
+    @Override
+    public Location getById(UUID id) {
         return locationRepository.findById(id).orElseThrow(() -> new RuntimeException("Location not found"));
     }
 
-    public Location createLocation(Location location) {
+    @Override
+    public Location create(Location location) {
         return locationRepository.save(location);
     }
 
-    public Location updateLocation(UUID id, Location location) {
-        Location existingLocation = getLocationById(id);
+    @Override
+    public Location update(UUID id, Location location) {
+        Location existingLocation = getById(id);
         if (location.getName() != null) {
             existingLocation.setName(location.getName());
         }
@@ -54,7 +58,8 @@ public class LocationService {
         return locationRepository.save(existingLocation);
     }
 
-    public void deleteLocation(UUID id) {
+    @Override
+    public void delete(UUID id) {
         locationRepository.deleteById(id);
     }
 }

@@ -9,34 +9,39 @@ import irishdiscoveries.backend.domain.Category;
 import irishdiscoveries.backend.repository.CategoryRepository;
 
 @Service
-public class CategoryService {
+public class CategoryService implements CrudService<Category> {
     private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
-    public List<Category> getAllCategories() {
+    @Override
+    public List<Category> getAll() {
         return categoryRepository.findAll();
     }
 
-    public Category getCategoryById(UUID id) {
+    @Override
+    public Category getById(UUID id) {
         return categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
     }
 
-    public Category createCategory(Category category) {
+    @Override
+    public Category create(Category category) {
         return categoryRepository.save(category);
     }
 
-    public Category updateCategory(UUID id, Category category) {
-        Category existingCategory = getCategoryById(id);
+    @Override
+    public Category update(UUID id, Category category) {
+        Category existingCategory = getById(id);
         if (category.getName() != null) {
             existingCategory.setName(category.getName());
         }
         return categoryRepository.save(existingCategory);
     }
 
-    public void deleteCategory(UUID id) {
+    @Override
+    public void delete(UUID id) {
         categoryRepository.deleteById(id);
     }
 

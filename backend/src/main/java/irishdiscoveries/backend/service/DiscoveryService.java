@@ -9,27 +9,31 @@ import irishdiscoveries.backend.domain.Discovery;
 import irishdiscoveries.backend.repository.DiscoveryRepository;
 
 @Service
-public class DiscoveryService {
+public class DiscoveryService implements CrudService<Discovery> {
     private final DiscoveryRepository discoveryRepository;
 
     public DiscoveryService(DiscoveryRepository discoveryRepository) {
         this.discoveryRepository = discoveryRepository;
     }
 
-    public List<Discovery> getAllDiscoveries() {
+    @Override
+    public List<Discovery> getAll() {
         return discoveryRepository.findAll();
     }
 
-    public Discovery getDiscoveryById(UUID id) {
+    @Override
+    public Discovery getById(UUID id) {
         return discoveryRepository.findById(id).orElseThrow(() -> new RuntimeException("Discovery not found"));
     }
 
-    public Discovery createDiscovery(Discovery discovery) {
+    @Override
+    public Discovery create(Discovery discovery) {
         return discoveryRepository.save(discovery);
     }
 
-    public Discovery updateDiscovery(UUID id, Discovery discovery) {
-        Discovery existingDiscovery = getDiscoveryById(id);
+    @Override
+    public Discovery update(UUID id, Discovery discovery) {
+        Discovery existingDiscovery = getById(id);
         if (discovery.getName() != null) {
             existingDiscovery.setName(discovery.getName());
         }
@@ -51,7 +55,8 @@ public class DiscoveryService {
         return discoveryRepository.save(existingDiscovery);
     }
 
-    public void deleteDiscovery(UUID id) {
+    @Override
+    public void delete(UUID id) {
         discoveryRepository.deleteById(id);
     }
 }
