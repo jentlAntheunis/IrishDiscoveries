@@ -13,7 +13,7 @@ import irishdiscoveries.backend.dto.UserLoginDTO;
 
 @RestController
 @RequestMapping("/users")
-public class UserController {
+public class UserController extends ControllerBase {
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -93,18 +93,5 @@ public class UserController {
         } catch (Exception e) {
             return handleException(e);
         }
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        if (e instanceof IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-
-        String message = e.getMessage() != null ? e.getMessage() : "Unexpected error";
-        if (message.toLowerCase().contains("not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
     }
 }

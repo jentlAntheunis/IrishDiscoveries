@@ -12,7 +12,7 @@ import irishdiscoveries.backend.service.DiscoveryService;
 
 @RestController
 @RequestMapping("/discoveries")
-public class DiscoveryController {
+public class DiscoveryController extends ControllerBase {
     private final DiscoveryService discoveryService;
 
     public DiscoveryController(DiscoveryService discoveryService) {
@@ -67,18 +67,5 @@ public class DiscoveryController {
         } catch (Exception e) {
             return handleException(e);
         }
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        if (e instanceof IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-
-        String message = e.getMessage() != null ? e.getMessage() : "Unexpected error";
-        if (message.toLowerCase().contains("not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
     }
 }

@@ -12,7 +12,7 @@ import irishdiscoveries.backend.service.CategoryService;
 
 @RestController
 @RequestMapping("/categories")
-public class CategoryController {
+public class CategoryController extends ControllerBase {
     private final CategoryService categoryService;
 
     public CategoryController(CategoryService categoryService) {
@@ -67,18 +67,5 @@ public class CategoryController {
         } catch (Exception e) {
             return handleException(e);
         }
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        if (e instanceof IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-
-        String message = e.getMessage() != null ? e.getMessage() : "Unexpected error";
-        if (message.toLowerCase().contains("not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
     }
 }

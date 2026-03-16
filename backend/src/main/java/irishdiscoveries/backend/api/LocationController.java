@@ -12,7 +12,7 @@ import irishdiscoveries.backend.domain.Location;
 
 @RestController
 @RequestMapping("/locations")
-public class LocationController {
+public class LocationController extends ControllerBase {
     private final LocationService locationService;
 
     public LocationController(LocationService locationService) {
@@ -67,18 +67,5 @@ public class LocationController {
         } catch (Exception e) {
             return handleException(e);
         }
-    }
-
-    private ResponseEntity<String> handleException(Exception e) {
-        if (e instanceof IllegalArgumentException) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-
-        String message = e.getMessage() != null ? e.getMessage() : "Unexpected error";
-        if (message.toLowerCase().contains("not found")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(message);
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(message);
     }
 }
