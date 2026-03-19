@@ -6,11 +6,13 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import irishdiscoveries.backend.domain.User;
-import irishdiscoveries.backend.dto.UserLoginDTO;
+import irishdiscoveries.backend.dto.CreateUserDto;
+import irishdiscoveries.backend.dto.LoginUserDto;
+import irishdiscoveries.backend.dto.UpdateUserDto;
 import irishdiscoveries.backend.repository.UserRepository;
 
 @Service
-public class UserService implements CrudService<User> {
+public class UserService implements CrudService<User, CreateUserDto, UpdateUserDto> {
     private final UserRepository userRepository;
 
     public UserService(UserRepository userRepository) {
@@ -28,12 +30,15 @@ public class UserService implements CrudService<User> {
     }
 
     @Override
-    public User create(User user) {
-        return userRepository.save(user);
+    public User create(CreateUserDto user) {
+        User newUser = new User();
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(user.getPassword());
+        return userRepository.save(newUser);
     }
 
     @Override
-    public User update(UUID id, User user) {
+    public User update(UUID id, UpdateUserDto user) {
         User existingUser = getById(id);
         if (user.getUsername() != null) {
             existingUser.setUsername(user.getUsername());
@@ -49,7 +54,7 @@ public class UserService implements CrudService<User> {
         userRepository.deleteById(id);
     }
 
-    public User loginUser(UserLoginDTO user) {
+    public User loginUser(LoginUserDto user) {
         User foundUser = userRepository.findByUsername(user.getUsername());
         if (foundUser != null && foundUser.getPassword().equals(user.getPassword())) {
             return foundUser;

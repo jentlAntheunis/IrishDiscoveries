@@ -3,12 +3,14 @@ package irishdiscoveries.backend.api;
 import org.springframework.web.bind.annotation.*;
 
 import irishdiscoveries.backend.domain.Discovery;
+import irishdiscoveries.backend.dto.CreateDiscoveryDto;
+import irishdiscoveries.backend.dto.UpdateDiscoveryDto;
 import irishdiscoveries.backend.service.CrudService;
 import irishdiscoveries.backend.service.DiscoveryService;
 
 @RestController
 @RequestMapping("/discoveries")
-public class DiscoveryController extends CrudController<Discovery> {
+public class DiscoveryController extends CrudController<Discovery, CreateDiscoveryDto, UpdateDiscoveryDto> {
     private final DiscoveryService discoveryService;
 
     public DiscoveryController(DiscoveryService discoveryService) {
@@ -16,7 +18,7 @@ public class DiscoveryController extends CrudController<Discovery> {
     }
 
     @Override
-    protected CrudService<Discovery> service() {
+    protected CrudService<Discovery, CreateDiscoveryDto, UpdateDiscoveryDto> service() {
         return discoveryService;
     }
 }

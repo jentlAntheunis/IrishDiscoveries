@@ -3,6 +3,9 @@ package irishdiscoveries.backend.domain;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -28,5 +31,6 @@ public class Discovery {
 
     @ManyToOne
     @JoinColumn(name = "location_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Location location;
 }

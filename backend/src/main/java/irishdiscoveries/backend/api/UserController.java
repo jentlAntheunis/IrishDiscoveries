@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import irishdiscoveries.backend.service.CrudService;
 import irishdiscoveries.backend.service.UserService;
 import irishdiscoveries.backend.domain.User;
-import irishdiscoveries.backend.dto.UserLoginDTO;
+import irishdiscoveries.backend.dto.CreateUserDto;
+import irishdiscoveries.backend.dto.LoginUserDto;
+import irishdiscoveries.backend.dto.UpdateUserDto;
 
 @RestController
 @RequestMapping("/users")
-public class UserController extends CrudController<User> {
+public class UserController extends CrudController<User, CreateUserDto, UpdateUserDto> {
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -18,12 +20,12 @@ public class UserController extends CrudController<User> {
     }
 
     @Override
-    protected CrudService<User> service() {
+    protected CrudService<User, CreateUserDto, UpdateUserDto> service() {
         return userService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO dto) {
+    public ResponseEntity<?> login(@RequestBody LoginUserDto dto) {
         User user = userService.loginUser(dto);
         return ResponseEntity.ok(user);
     }

@@ -6,10 +6,12 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import irishdiscoveries.backend.domain.Category;
+import irishdiscoveries.backend.dto.CreateCategoryDto;
+import irishdiscoveries.backend.dto.UpdateCategoryDto;
 import irishdiscoveries.backend.repository.CategoryRepository;
 
 @Service
-public class CategoryService implements CrudService<Category> {
+public class CategoryService implements CrudService<Category, CreateCategoryDto, UpdateCategoryDto> {
     private final CategoryRepository categoryRepository;
 
     public CategoryService(CategoryRepository categoryRepository) {
@@ -27,12 +29,14 @@ public class CategoryService implements CrudService<Category> {
     }
 
     @Override
-    public Category create(Category category) {
-        return categoryRepository.save(category);
+    public Category create(CreateCategoryDto category) {
+        Category newCategory = new Category();
+        newCategory.setName(category.getName());
+        return categoryRepository.save(newCategory);
     }
 
     @Override
-    public Category update(UUID id, Category category) {
+    public Category update(UUID id, UpdateCategoryDto category) {
         Category existingCategory = getById(id);
         if (category.getName() != null) {
             existingCategory.setName(category.getName());
