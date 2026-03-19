@@ -34,5 +34,11 @@
             "console": "integratedTerminal",
             "preLaunchTask": "java (build): Build Workspace"
         }
+    ],
+    "compounds": [
+        {
+            "name": "Run both",
+            "configurations": ["Frontend", "Backend"]
+        }
     ]
 }
