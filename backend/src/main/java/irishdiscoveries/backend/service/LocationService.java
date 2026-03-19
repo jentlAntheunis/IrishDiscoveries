@@ -54,12 +54,12 @@ public class LocationService implements CrudService<Location, CreateLocationDto,
         if (location.getCounty() != null) {
             existingLocation.setCounty(location.getCounty());
         }
-        if (location.getPostcode() != null) {
-            existingLocation.setPostcode(location.getPostcode());
-        }
-        if (location.getRoad() != null) {
-            existingLocation.setRoad(location.getRoad());
-        }
+//        if (location.getPostcode() != null) {
+//            existingLocation.setPostcode(location.getPostcode());
+//        }
+//        if (location.getRoad() != null) {
+//            existingLocation.setRoad(location.getRoad());
+//        }
         if (location.getBoundingBox() != null) {
             existingLocation.setBoundingBox(location.getBoundingBox());
         }
@@ -77,12 +77,12 @@ public class LocationService implements CrudService<Location, CreateLocationDto,
         if (location.getCounty() == null || location.getCounty().isBlank()) {
             throw new IllegalArgumentException("Location county is required");
         }
-        if (location.getPostcode() == null || location.getPostcode().isBlank()) {
-            throw new IllegalArgumentException("Location postcode is required");
-        }
-        if (location.getRoad() == null || location.getRoad().isBlank()) {
-            throw new IllegalArgumentException("Location road is required");
-        }
+//        if (location.getPostcode() == null || location.getPostcode().isBlank()) {
+//            throw new IllegalArgumentException("Location postcode is required");
+//        }
+//        if (location.getRoad() == null || location.getRoad().isBlank()) {
+//            throw new IllegalArgumentException("Location road is required");
+//        }
         if (location.getBoundingBox() == null) {
             throw new IllegalArgumentException("Location bounding box is required");
         }

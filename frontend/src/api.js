@@ -65,5 +65,21 @@ async function getUserByUsername(username, log = false) {
 	}
 }
 
+async function getUserDiscoveries(userId, log = false) {
+    try {
+        const res = await axios.get(BASE_URL + Entity.Discovery + "/by-userid/" + encodeURIComponent(userId));
+        if (log) {
+            console.log("GET", BASE_URL + Entity.Discovery + "/by-userid/" + encodeURIComponent(userId));
+        }
+        return res.data;
+    } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 404) {
+            return null;
+        }
+
+        throw error;
+    }
+}
+
 export { Entity };
-export default { post, get, getById, patch, deleteById, getUserByUsername };
+export default { post, get, getById, patch, deleteById, getUserByUsername, getUserDiscoveries };

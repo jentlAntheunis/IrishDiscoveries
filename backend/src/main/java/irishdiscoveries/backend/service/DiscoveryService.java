@@ -41,6 +41,15 @@ public class DiscoveryService implements CrudService<Discovery, CreateDiscoveryD
         return discoveryRepository.findById(id).orElseThrow(() -> new RuntimeException("Discovery not found"));
     }
 
+    public List<Discovery> getByUserId(UUID UserId) {
+        userRepository.findById(UserId).orElseThrow(() -> new RuntimeException("User not found"));
+        List<Discovery> userDiscoveries = discoveryRepository.findByUserId(UserId);
+        if (userDiscoveries.isEmpty()) {
+            throw new RuntimeException("User has no discoveries yet");
+        }
+        return userDiscoveries;
+    }
+
     @Override
     public Discovery create(CreateDiscoveryDto discovery) {
         Discovery newDiscovery = new Discovery();
