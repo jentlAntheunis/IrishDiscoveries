@@ -14,7 +14,9 @@ import AutoComplete from "primevue/autocomplete";
 
 import { authState } from "@/state/auth.ts";
 import api, { Entity } from "@/api";
-import { router } from "@/router";
+import { useRouter } from "vue-router";
+
+const router = useRouter()
 
 const form = reactive({
 	userId: authState.value.id,
@@ -87,7 +89,7 @@ const handleSubmit = async () => {
 		const categoryId = await handleCategory();
 		const locationId = await handleLocation();
 		await handleDiscovery(categoryId, locationId);
-		// router.push("/dashboard");
+		router.push("/dashboard");
 	} catch (err) {
 		console.error("Error during submission:", err);
 	}

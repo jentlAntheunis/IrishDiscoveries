@@ -13,4 +13,5 @@ createApp(App)
             preset: Aura
         }
     })
-    .use(router).mount('#app')
+    .use(router)
+    .mount('#app')
