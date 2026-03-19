@@ -77,11 +77,6 @@ const isExpanded = index => expandedRows.value.has(index);
 			</tbody>
 		</table>
 	</div>
-	<div class="btnContainer" v-if="authState.isLoggedIn">
-		<Button class="addBtn">
-			<RouterLink class="addBtnLink" to="/add">Add data</RouterLink>
-		</Button>
-	</div>
 </template>
 
 <style scoped>
@@ -106,17 +101,5 @@ th {
 
 .review-price {
 	color: var(--c-grey);
-}
-
-.btnContainer {
-	position: relative;
-}
-.addBtn {
-	position: absolute;
-	right: 1rem;
-	bottom: 1.5rem;
-}
-.addBtnLink {
-	color: white;
 }
 </style>

@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -13,12 +13,14 @@ import Rating from "primevue/rating";
 import AutoComplete from "primevue/autocomplete";
 
 import { authState } from "@/state/auth.ts";
+import api, { Entity } from "@/api";
+import { router } from "@/router";
 
 const form = reactive({
 	userId: authState.value.id,
 	name: "",
 	category: "",
-	location: "",
+	location: {},
 	discoveredOn: null,
 	rating: null,
 	description: "",
@@ -27,6 +29,12 @@ const form = reactive({
 const errors = reactive({});
 
 const locationSuggestions = ref([]);
+const categories = ref([]);
+
+onMounted(async () => {
+	const data = await api.get(Entity.Category);
+	categories.value = data.map(c => ({ label: c.name, value: c.id }));
+});
 
 const searchLocation = async event => {
 	const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&q=${event.query}`);
@@ -34,8 +42,20 @@ const searchLocation = async event => {
 	console.log("Location search results:", data);
 	locationSuggestions.value = data.map(p => ({
 		label: p.display_name,
-		lat: p.lat,
-		lon: p.lon,
+		coordinates: {
+			lat: p.lat,
+			lon: p.lon,
+		},
+		placename: p.address.city || p.address.town || p.address.village || p.address.civil_parish || "",
+		county: p.address.county || "",
+		postcode: p.address.postcode || "",
+		road: p.address.road || "",
+		boundingBox: {
+			north: p.boundingbox[1],
+			south: p.boundingbox[0],
+			east: p.boundingbox[3],
+			west: p.boundingbox[2],
+		},
 	}));
 };
 
@@ -55,29 +75,76 @@ const validate = () => {
 	return Object.keys(errors).length === 0;
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
 	console.log(form);
 	if (!validate()) {
 		console.log("form invalid", errors);
 		return;
 	}
 	console.log("Valid form:", form);
-	// check if category exists, if not adds a new one
-	if (form.category && !categories.value.some(c => c.value.toLowerCase() === form.category.toString().toLowerCase())) {
-		addCategory({
-			label: capitalize(form.category.toString().toLowerCase()),
-			value: form.category.toString().toLowerCase(),
-		});
+
+	try {
+		const categoryId = await handleCategory();
+		const locationId = await handleLocation();
+		await handleDiscovery(categoryId, locationId);
+		// router.push("/dashboard");
+	} catch (err) {
+		console.error("Error during submission:", err);
+	}
+};
+
+const handleCategory = async () => {
+	// Check if form.category is an existing category ID
+	const existingCategory = categories.value.find(c => c.value === form.category);
+	if (existingCategory) {
+		return form.category; // Already an ID of existing category
 	}
 
-	// handle location
-	const mapsUrl = form.location.lat
-		? `https://www.google.com/maps?q=${form.location.lat},${form.location.lon}`
-		: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(form.location)}`;
-	form.location.mapsUrl = mapsUrl;
+	// It's a new category name entered in the editable dropdown
+	try {
+		const response = await api.post(Entity.Category, { name: form.category });
+		categories.value.push({ label: form.category, value: response.id });
+		return response.id;
+	} catch (err) {
+		console.error("Error adding category:", err);
+		alert("Failed to add category. Please try again.");
+		throw err;
+	}
+};
 
-	console.log(form);
-	addDiscovery({ ...form });
+const handleLocation = async () => {
+	try {
+		const response = await api.post(Entity.Location, form.location);
+		console.log("Location added successfully with ID:", response.id);
+		return response.id;
+	} catch (err) {
+		console.error("Error adding location:", err);
+		alert("Failed to add location. Please try again.");
+		throw err;
+	}
+};
+
+const handleDiscovery = async (categoryId, locationId) => {
+	const discoveryData = {
+		userId: form.userId,
+		name: form.name,
+		categoryId,
+		locationId,
+		discoveredOn: form.discoveredOn,
+		rating: form.rating,
+		description: form.description,
+		priceCategory: form.priceCategory,
+	};
+	console.log("Submitting discovery data:", discoveryData);
+
+	try {
+		await api.post(Entity.Discovery, discoveryData);
+		alert("Discovery added successfully!");
+	} catch (err) {
+		console.error("Error adding discovery:", err);
+		alert("Failed to add discovery. Please try again.");
+		throw err;
+	}
 };
 
 const priceCategories = ref([
@@ -86,6 +153,7 @@ const priceCategories = ref([
 	{ label: "Cheap", value: "cheap" },
 	{ label: "Good Value", value: "value" },
 	{ label: "Free", value: "free" },
+	{ label: "N/A", value: "n/a" },
 ]);
 
 const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -93,10 +161,6 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 
 <template>
 	<div>
-		<Button link>
-			<RouterLink to="/">Go back</RouterLink>
-		</Button>
-
 		<form @submit.prevent="handleSubmit" class="form">
 			<div class="form-row">
 				<div class="field f-grow">
