@@ -17,7 +17,7 @@ const logOut = () => {
 		<div class="topbar">
 			<div class="topbar__content">
 				<h1>Irish Discoveries</h1>
-				<Button @click="logOut()">Log out</Button>
+				<Button v-if="authState" @click="logOut">Log out</Button>
 			</div>
 		</div>
 	</div>

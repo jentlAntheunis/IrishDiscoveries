@@ -1,6 +1,7 @@
 <script setup>
 import Button from "primevue/button";
 import { useRouter } from "vue-router";
+import { authState } from "@/state/auth";
 </script>
 
 <template>
@@ -8,7 +9,7 @@ import { useRouter } from "vue-router";
 		<div class="footer">
 			<p>&copy; Jentl Antheunis</p>
 
-			<RouterLink class="addBtnLink" to="/add" v-if="useRouter().currentRoute.value.path != '/add'">
+			<RouterLink class="addBtnLink" to="/add" v-if="authState && useRouter().currentRoute.value.path != '/add'">
 				<Button class="addBtn"> Add data </Button>
 			</RouterLink>
 		</div>
