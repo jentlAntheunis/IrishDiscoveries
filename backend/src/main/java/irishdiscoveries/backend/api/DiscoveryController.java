@@ -25,9 +25,8 @@ public class DiscoveryController extends CrudController<Discovery, CreateDiscove
         return discoveryService;
     }
 
-
     @GetMapping("/by-userid/{userId}")
-    public List<Discovery> getByUserId(@PathVariable UUID userId) {
+    public List<Discovery> getByUserId(@PathVariable("userId") UUID userId) {
         return discoveryService.getByUserId(userId);
     }
 }

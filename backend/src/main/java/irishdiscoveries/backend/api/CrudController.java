@@ -18,7 +18,7 @@ public abstract class CrudController<T, C extends BaseDto, U extends BaseDto> {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable UUID id) {
+    public ResponseEntity<?> getById(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(service().getById(id));
     }
 
@@ -28,12 +28,12 @@ public abstract class CrudController<T, C extends BaseDto, U extends BaseDto> {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody U body) {
+    public ResponseEntity<?> update(@PathVariable("id") UUID id, @RequestBody U body) {
         return ResponseEntity.ok(service().update(id, body));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable UUID id) {
+    public ResponseEntity<?> delete(@PathVariable("id") UUID id) {
         service().delete(id);
         return ResponseEntity.noContent().build();
     }
