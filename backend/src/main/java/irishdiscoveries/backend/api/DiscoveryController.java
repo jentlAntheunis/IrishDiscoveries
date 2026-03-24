@@ -1,5 +1,6 @@
 package irishdiscoveries.backend.api;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import irishdiscoveries.backend.domain.Discovery;
@@ -26,7 +27,7 @@ public class DiscoveryController extends CrudController<Discovery, CreateDiscove
     }
 
     @GetMapping("/by-userid/{userId}")
-    public List<Discovery> getByUserId(@PathVariable("userId") UUID userId) {
-        return discoveryService.getByUserId(userId);
+    public ResponseEntity<List<Discovery>> getByUserId(@PathVariable("userId") UUID userId) {
+        return ResponseEntity.ok(discoveryService.getByUserId(userId));
     }
 }
