@@ -18,6 +18,7 @@ public class Discovery {
     private UUID id;
 
     private String name;
+    @Lob
     private String description;
     private String priceCategory;
     private LocalDateTime discoveredOn;
