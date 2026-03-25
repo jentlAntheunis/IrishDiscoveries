@@ -13,6 +13,7 @@ public class UpdateDiscoveryDto extends BaseDto {
     private String description;
     private String priceCategory;
     private LocalDateTime discoveredOn;
+    private int rating;
     private UUID categoryId;
     private UUID locationId;
     private UUID userId;

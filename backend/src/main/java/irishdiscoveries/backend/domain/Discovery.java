@@ -21,6 +21,7 @@ public class Discovery {
     private String description;
     private String priceCategory;
     private LocalDateTime discoveredOn;
+    private int rating;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
