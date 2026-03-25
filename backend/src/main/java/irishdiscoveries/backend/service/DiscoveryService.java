@@ -62,6 +62,9 @@ public class DiscoveryService implements CrudService<Discovery, CreateDiscoveryD
         if (discovery.getDiscoveredOn() != null) {
             newDiscovery.setDiscoveredOn(discovery.getDiscoveredOn());
         }
+        if (discovery.getRating() != 0) {
+            newDiscovery.setRating(discovery.getRating());
+        }
         Category category = categoryRepository.findById(discovery.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
         newDiscovery.setCategory(category);
@@ -108,6 +111,9 @@ public class DiscoveryService implements CrudService<Discovery, CreateDiscoveryD
         }
         if (discovery.getDiscoveredOn() != null) {
             existingDiscovery.setDiscoveredOn(discovery.getDiscoveredOn());
+        }
+        if (discovery.getRating() != 0) {
+            existingDiscovery.setRating(discovery.getRating());
         }
         return discoveryRepository.save(existingDiscovery);
     }
