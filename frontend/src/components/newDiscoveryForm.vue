@@ -16,7 +16,7 @@ import { authState } from "@/state/auth.ts";
 import api, { Entity } from "@/api";
 import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const form = reactive({
 	userId: authState.value.id,
@@ -48,7 +48,14 @@ const searchLocation = async event => {
 			lat: p.lat,
 			lon: p.lon,
 		},
-		placename: p.address.city || p.address.town || p.address.village || p.address.civil_parish || "",
+		placename:
+			p.address.city ||
+			p.address.town ||
+			p.address.village ||
+			p.address.civil_parish ||
+			p.city_district ||
+			p.display_name.split(",")[1]?.trim() ||
+			label,
 		county: p.address.county || "",
 		postcode: p.address.postcode || "",
 		road: p.address.road || "",
