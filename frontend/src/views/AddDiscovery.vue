@@ -1,5 +1,5 @@
 <script setup>
-import NewDiscoveryForm from "@/components/newDiscoveryForm.vue";
+import NewDiscoveryForm from "@/components/DiscoveryForm.vue";
 import Button from "primevue/button";
 </script>
 

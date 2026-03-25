@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -17,6 +17,21 @@ import api, { Entity } from "@/api";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+const props = defineProps({
+	discoveryId: {
+		type: String,
+		default: null,
+	},
+	initialDiscovery: {
+		type: Object,
+		default: null,
+	},
+	submitLabel: {
+		type: String,
+		default: "Submit",
+	},
+});
 
 const form = reactive({
 	userId: authState.value.id,
@@ -37,6 +52,25 @@ onMounted(async () => {
 	const data = await api.get(Entity.Category);
 	categories.value = data.map(c => ({ label: c.name, value: c.id }));
 });
+
+watch(
+	() => props.initialDiscovery,
+	value => {
+		if (!value) {
+			return;
+		}
+
+		form.userId = value.userId ?? value.user?.id ?? authState.value.id;
+		form.name = value.name ?? "";
+		form.category = value.category?.id ?? value.categoryId ?? "";
+		form.location = value.location ?? {};
+		form.discoveredOn = value.discoveredOn ? new Date(value.discoveredOn) : null;
+		form.rating = value.rating ?? null;
+		form.description = value.description ?? "";
+		form.priceCategory = value.priceCategory ?? "";
+	},
+	{ immediate: true },
+);
 
 const searchLocation = async event => {
 	const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&q=${event.query}`);
@@ -73,7 +107,7 @@ const validate = () => {
 
 	if (!form.name) errors.name = "Name is required";
 	if (!form.category) errors.category = "Category is required";
-	if (!form.location) errors.location = "Location is required";
+	if (!form.location || Object.keys(form.location).length === 0) errors.location = "Location is required";
 	if (!form.discoveredOn) errors.discoveredOn = "Discovery date is required";
 
 	if (form.rating === null || form.rating < 0 || form.rating > 7) {
@@ -122,6 +156,10 @@ const handleCategory = async () => {
 };
 
 const handleLocation = async () => {
+	if (form.location?.id) {
+		return form.location.id;
+	}
+
 	try {
 		const response = await api.post(Entity.Location, form.location);
 		console.log("Location added successfully with ID:", response.id);
@@ -147,11 +185,17 @@ const handleDiscovery = async (categoryId, locationId) => {
 	console.log("Submitting discovery data:", discoveryData);
 
 	try {
+		if (props.discoveryId) {
+			await api.patch(Entity.Discovery, props.discoveryId, discoveryData);
+			alert("Discovery updated successfully!");
+			return;
+		}
+
 		await api.post(Entity.Discovery, discoveryData);
 		alert("Discovery added successfully!");
 	} catch (err) {
-		console.error("Error adding discovery:", err);
-		alert("Failed to add discovery. Please try again.");
+		console.error("Error saving discovery:", err);
+		alert("Failed to save discovery. Please try again.");
 		throw err;
 	}
 };
@@ -267,7 +311,7 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 			</div>
 
 			<div class="form-row">
-				<Button type="submit" label="Submit" />
+				<Button type="submit" :label="submitLabel" />
 			</div>
 		</form>
 	</div>

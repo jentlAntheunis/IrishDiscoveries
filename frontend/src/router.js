@@ -1,9 +1,11 @@
 import { createWebHistory, createRouter } from "vue-router";
 
-import AddData from "@/views/AddData.vue";
+import AddData from "@/views/AddDiscovery.vue";
 import Login from "@/views/Login.vue";
 import Register from "@/views/Register.vue";
 import Dashboard from "@/views/Dashboard.vue";
+import EditDiscovery from "@/views/EditDiscovery.vue";
+
 import { authState } from "@/state/auth.ts";
 
 const routes = [
@@ -12,6 +14,7 @@ const routes = [
 	{ path: "/register", component: Register },
 	{ path: "/dashboard", component: Dashboard },
 	{ path: "/add", component: AddData },
+	{ path: "/edit/:id", component: EditDiscovery },
 ];
 
 export const router = createRouter({
