@@ -1,5 +1,7 @@
 <script setup>
-import { onMounted, reactive, ref, watch } from "vue";
+import { onMounted, reactive, ref, watch, nextTick } from "vue";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 import InputText from "primevue/inputtext";
 import Button from "primevue/button";
@@ -17,6 +19,11 @@ import api, { Entity } from "@/api";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+// Leaflet map configuration
+const mapContainer = ref(null);
+let mapInstance = null;
+let markerInstance = null;
 
 const props = defineProps({
 	discoveryId: {
@@ -51,7 +58,59 @@ const categories = ref([]);
 onMounted(async () => {
 	const data = await api.get(Entity.Category);
 	categories.value = data.map(c => ({ label: c.name, value: c.id }));
+
+	// Fix missing Leaflet icon issue
+	delete L.Icon.Default.prototype._getIconUrl;
+	L.Icon.Default.mergeOptions({
+		iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+		iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+		shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+	});
 });
+
+const initializeMap = async (lat, lon) => {
+	await nextTick();
+
+	if (!mapContainer.value) return;
+
+	// Initialize map if not already done
+	if (!mapInstance) {
+		mapInstance = L.map(mapContainer.value).setView([lat, lon], 11);
+		L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+			attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+			maxZoom: 19,
+		}).addTo(mapInstance);
+	} else {
+		mapInstance.setView([lat, lon], 11);
+	}
+
+	// Remove old marker if exists
+	if (markerInstance) {
+		mapInstance.removeLayer(markerInstance);
+	}
+
+	// Add draggable marker
+	markerInstance = L.marker([lat, lon], { draggable: true }).addTo(mapInstance);
+
+	// Handle marker drag
+	markerInstance.on("dragend", function () {
+		const pos = markerInstance.getLatLng();
+		form.location.coordinates = {
+			lat: parseFloat(pos.lat.toFixed(6)),
+			lon: parseFloat(pos.lng.toFixed(6)),
+		};
+	});
+};
+
+watch(
+	() => form.location,
+	value => {
+		if (value?.coordinates?.lat && value?.coordinates?.lon) {
+			initializeMap(value.coordinates.lat, value.coordinates.lon);
+		}
+	},
+	{ deep: true },
+);
 
 watch(
 	() => props.initialDiscovery,
@@ -68,6 +127,11 @@ watch(
 		form.rating = value.rating ?? 0;
 		form.description = value.description ?? "";
 		form.priceCategory = value.priceCategory ?? "";
+
+		// Initialize map if location with coordinates is present
+		if (form.location?.coordinates?.lat && form.location?.coordinates?.lon) {
+			initializeMap(form.location.coordinates.lat, form.location.coordinates.lon);
+		}
 	},
 	{ immediate: true },
 );
@@ -79,8 +143,8 @@ const searchLocation = async event => {
 	locationSuggestions.value = data.map(p => ({
 		label: p.display_name,
 		coordinates: {
-			lat: p.lat,
-			lon: p.lon,
+			lat: parseFloat(p.lat),
+			lon: parseFloat(p.lon),
 		},
 		placename:
 			p.address.city ||
@@ -245,19 +309,79 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 
 			<div class="form-row">
 				<div class="field w-full">
+					<label class="search-label">Location</label>
 					<FloatLabel variant="on">
 						<AutoComplete
-							id="location"
+							id="locationSearch"
 							class="w-full"
 							inputStyle="width: 100%"
-							v-model="form.location"
 							:suggestions="locationSuggestions"
 							optionLabel="label"
+							@item-select="event => (form.location = event.value)"
+							placeholder="Search for a location..."
 							@complete="searchLocation"
 						/>
-						<label for="location">Location</label>
+						<label for="locationSearch">Search</label>
 					</FloatLabel>
 					<Message v-if="errors.location" severity="error">{{ errors.location }}</Message>
+				</div>
+			</div>
+
+			<div
+				class="form-row location-details-row"
+				v-if="form.location?.coordinates?.lat && form.location?.coordinates?.lon"
+			>
+				<div class="location-map-section">
+					<div ref="mapContainer" class="map-container"></div>
+				</div>
+
+				<div class="location-fields-section">
+					<div class="form-row">
+						<FloatLabel variant="on" class="f-grow">
+							<InputText id="placename" v-model="form.location.placename" class="w-full" />
+							<label for="placename">Place Name</label>
+						</FloatLabel>
+					</div>
+					<div class="form-row">
+						<FloatLabel variant="on" class="f-grow">
+							<InputText id="county" v-model="form.location.county" class="w-full" />
+							<label for="county">County</label>
+						</FloatLabel>
+					</div>
+					<div class="form-row">
+						<FloatLabel variant="on" class="f-grow">
+							<InputText id="postcode" v-model="form.location.postcode" class="w-full" />
+							<label for="postcode">Postcode</label>
+						</FloatLabel>
+					</div>
+					<div class="form-row">
+						<FloatLabel variant="on" class="f-grow">
+							<InputText id="road" v-model="form.location.road" class="w-full" />
+							<label for="road">Road</label>
+						</FloatLabel>
+					</div>
+					<div class="form-row">
+						<FloatLabel variant="on" class="w-full">
+							<InputText
+								id="latitude"
+								v-model.number="form.location.coordinates.lat"
+								type="number"
+								step="0.000001"
+								class="w-full"
+							/>
+							<label for="latitude">Latitude</label>
+						</FloatLabel>
+						<FloatLabel variant="on" class="w-full">
+							<InputText
+								id="longitude"
+								v-model.number="form.location.coordinates.lon"
+								type="number"
+								step="0.000001"
+								class="w-full"
+							/>
+							<label for="longitude">Longitude</label>
+						</FloatLabel>
+					</div>
 				</div>
 			</div>
 
@@ -318,14 +442,9 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 </template>
 
 <style scoped>
-.form {
-	margin-top: 2rem;
-}
-
 .form-row {
 	display: flex;
-	margin-top: 1rem;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
 	gap: 1rem;
 	width: 100%;
 }
@@ -346,5 +465,52 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 }
 .r-vertical {
 	resize: vertical;
+}
+
+.map-container {
+	width: 100%;
+	height: 350px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	margin: 0;
+	z-index: 1;
+}
+
+.location-details-row {
+	gap: 1.5rem;
+	align-items: flex-start;
+}
+
+.location-map-section {
+	flex: 1 1 50%;
+	display: flex;
+	flex-direction: column;
+	min-width: 280px;
+}
+
+.location-fields-section {
+	flex: 1 1 50%;
+	display: flex;
+	flex-direction: column;
+	min-width: 280px;
+}
+
+.search-label {
+	display: block;
+	font-size: 0.875rem;
+	color: #666;
+	margin-bottom: 0.5rem;
+	font-weight: 500;
+}
+
+@media (max-width: 900px) {
+	.location-details-row {
+		flex-direction: column;
+	}
+
+	.location-map-section,
+	.location-fields-section {
+		flex: 1 1 100%;
+	}
 }
 </style>
