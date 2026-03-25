@@ -1,115 +1,85 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { authState } from "@/state/auth.ts";
-import Button from "primevue/button";
-import api, {Entity} from "@/api.js";
+import { computed } from "vue";
 
-const userId = authState.value.id;
-let discoveries = ref();
+/**
+ * columns: Array<string | { label: string, field: string, formatter?: (v,row)=>any }>
+ * rows: Array<object>
+ * keyField: string default 'id'
+ */
+const props = defineProps({
+	columns: { type: Array, required: true },
+	rows: { type: Array, required: true },
+	keyField: { type: String, default: "id" },
+	showHeaders: { type: Boolean, default: true },
+});
 
-onMounted(async () => {
-  const data = await api.getUserDiscoveries(userId);
-  console.info(data)
-  discoveries.value = data;
-})
-
-const expandedRows = ref(new Set());
-
-const toggleRow = index => {
-	expandedRows.value.has(index) ? expandedRows.value.delete(index) : expandedRows.value.add(index);
-};
-
-const isExpanded = index => expandedRows.value.has(index);
+const parsedColumns = computed(() => {
+	return props.columns.map(col => {
+		if (typeof col === "string") return { label: col, field: col };
+		return { label: col.label ?? col.field, field: col.field, formatter: col.formatter };
+	});
+});
 </script>
 
-<template class="template">
-	<div class="tableContainer">
-		<table>
-			<thead>
-				<tr>
-					<th>Name</th>
-					<th>Category</th>
-					<th>Location</th>
-<!--					<th>Review</th>-->
-				</tr>
-			</thead>
-
-			<tbody>
-				<template v-for="(item, index) in discoveries" :key="index">
-					<tr>
-						<td>{{ item.name }}</td>
-						<td>{{ item.category.name }}</td>
-						<td>
-              {{ item.location.placename }}, {{ item.location.county }}
-							<Button link>
-								<a
-									v-if="item.location.mapsUrl"
-									:href="`${item.location.mapsUrl}`"
-									target="_blank"
-									rel="noopener"
-								>
-									Google Maps
-								</a>
-								<a
-									v-else
-									:href="`https://maps.google.com/?q=${item.location.coordinates.lat},${item.location.coordinates.lon}`"
-									target="_blank"
-									rel="noopener"
-								>
-									Google Maps
-								</a>
-							</Button>
-						</td>
-
-<!--						<td class="review-cell">-->
-<!--							<div class="stars">-->
-<!--								<span v-for="starIndex in 7">-->
-<!--									<span v-if="starIndex <= item.rating">★</span>-->
-<!--									<span v-else>☆</span>-->
-<!--								</span>-->
-<!--							</div>-->
-<!--						</td>-->
-<!--						<td>-->
-<!--							<Button text @click="toggleRow(index)">-->
-<!--								{{ isExpanded(index) ? "Close" : "More info" }}-->
-<!--							</Button>-->
-<!--						</td>-->
-					</tr>
-
-<!--					&lt;!&ndash; Expanded dropdown row &ndash;&gt;-->
-<!--					<tr v-if="isExpanded(index)" class="expanded-row">-->
-<!--						<td colspan="5">-->
-<!--							<p class="review-text">{{ item.description }}</p>-->
-<!--							<p class="review-price"><strong>Price:</strong> {{ item.priceCategory }}</p>-->
-<!--						</td>-->
-<!--					</tr>-->
-				</template>
-			</tbody>
-		</table>
-	</div>
+<template>
+	<table class="data-table">
+		<thead v-if="showHeaders">
+			<tr>
+				<th v-for="col in parsedColumns" :key="col.field">{{ col.label }}</th>
+				<th class="actions-header"></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr v-for="row in rows" :key="row[props.keyField]">
+				<td v-for="col in parsedColumns" :key="col.field">
+					<slot name="cell" :row="row" :column="col">
+						{{ col.formatter ? col.formatter(row[col.field], row) : row[col.field] }}
+					</slot>
+				</td>
+				<td v-if="$slots.actions" class="actions-cell">
+					<slot name="actions" :row="row" />
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </template>
 
 <style scoped>
-.tableContainer {
-	height: 100%;
-}
-table {
+.data-table {
 	width: 100%;
-	border-collapse: collapse;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	border-radius: 10px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-th,
-td {
-	border: 1px solid #ddd;
-	padding: 0.5rem;
+.data-table th {
 	text-align: left;
+	padding: 0.5rem 1rem;
+	background-color: var(--c-orange);
+	color: #ffffff;
+	font-weight: 600;
 }
 
-th {
-	background: #f5f5f5;
+.data-table td {
+	padding: 12px 14px;
 }
 
-.review-price {
-	color: var(--c-grey);
+.data-table tbody tr:nth-child(even) {
+	background-color: var(--c-green-lightest);
+}
+
+.data-table tbody tr:nth-child(odd) {
+	background-color: #ffffff;
+}
+
+.data-table tbody tr:hover {
+	background-color: #d5f5e4;
+}
+
+.actions-header,
+.actions-cell {
+	text-align: right;
 }
 </style>

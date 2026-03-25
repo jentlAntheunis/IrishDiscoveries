@@ -1,9 +1,9 @@
 <script setup>
-import Table from "@/components/Table.vue";
+import DiscoveryTable from "@/components/DiscoveryTable.vue";
 </script>
 <template>
 	<div class="dashboard">
-		<Table />
+		<DiscoveryTable />
 	</div>
 </template>
 
