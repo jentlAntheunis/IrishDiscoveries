@@ -4,6 +4,7 @@ import { authState } from "@/state/auth.ts";
 import { RouterLink } from "vue-router";
 import api from "@/api.js";
 import Table from "@/components/Table.vue";
+import Rating from "primevue/rating";
 
 const userId = authState.value.id;
 const discoveries = ref([]);
@@ -29,6 +30,9 @@ const tableConfig = {
 				const county = value.county ?? "";
 				return [place, county].filter(Boolean).join(", ") || "-";
 			},
+		},
+		Rating: {
+			field: "rating",
 		},
 	},
 };
@@ -78,6 +82,10 @@ function getMapsUrl(location) {
 					>
 						Google Maps
 					</a>
+				</template>
+				<template v-else-if="column.field === 'rating'">
+					<Rating v-if="row.rating > 0" :modelValue="row.rating" :stars="5" readonly :cancel="false" />
+					<span v-else>-</span>
 				</template>
 				<template v-else>
 					{{ formatCell(row, column) }}
