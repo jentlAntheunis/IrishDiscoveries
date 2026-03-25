@@ -21,6 +21,7 @@ const tableConfig = {
 		Category: {
 			field: "category",
 			formatter: value => value?.name ?? "-",
+			sortKey: "category.name",
 		},
 		Location: {
 			field: "location",
@@ -30,9 +31,11 @@ const tableConfig = {
 				const county = value.county ?? "";
 				return [place, county].filter(Boolean).join(", ") || "-";
 			},
+			sortKey: "location.county",
 		},
 		Rating: {
 			field: "rating",
+			defaultSortDirection: "desc",
 		},
 	},
 };
@@ -47,6 +50,8 @@ const tableColumns = computed(() => {
 			label,
 			field: value.field,
 			formatter: value.formatter,
+			sortKey: value.sortKey,
+			defaultSortDirection: value.defaultSortDirection,
 		};
 	});
 });
