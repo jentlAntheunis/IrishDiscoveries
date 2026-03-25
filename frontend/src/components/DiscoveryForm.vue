@@ -220,17 +220,38 @@ const handleCategory = async () => {
 };
 
 const handleLocation = async () => {
-	if (form.location?.id) {
-		return form.location.id;
-	}
+	const existingLocationId = props.initialDiscovery?.location?.id ?? null;
+	const payload = {
+		placename: form.location?.placename ?? "",
+		county: form.location?.county ?? "",
+		postcode: form.location?.postcode ?? "",
+		road: form.location?.road ?? "",
+		coordinates: {
+			lat: form.location?.coordinates?.lat,
+			lon: form.location?.coordinates?.lon,
+		},
+		boundingBox: form.location?.boundingBox ?? null,
+	};
 
 	try {
-		const response = await api.post(Entity.Location, form.location);
+		if (props.discoveryId && existingLocationId) {
+			await api.patch(Entity.Location, existingLocationId, payload);
+			console.log("Location updated successfully with ID:", existingLocationId);
+			return existingLocationId;
+		}
+
+		if (form.location?.id) {
+			await api.patch(Entity.Location, form.location.id, payload);
+			console.log("Location updated successfully with ID:", form.location.id);
+			return form.location.id;
+		}
+
+		const response = await api.post(Entity.Location, payload);
 		console.log("Location added successfully with ID:", response.id);
 		return response.id;
 	} catch (err) {
-		console.error("Error adding location:", err);
-		alert("Failed to add location. Please try again.");
+		console.error("Error saving location:", err);
+		alert("Failed to save location. Please try again.");
 		throw err;
 	}
 };
