@@ -39,7 +39,7 @@ const form = reactive({
 	category: "",
 	location: {},
 	discoveredOn: null,
-	rating: null,
+	rating: 0,
 	description: "",
 	priceCategory: "",
 });
@@ -65,7 +65,7 @@ watch(
 		form.category = value.category?.id ?? value.categoryId ?? "";
 		form.location = value.location ?? {};
 		form.discoveredOn = value.discoveredOn ? new Date(value.discoveredOn) : null;
-		form.rating = value.rating ?? null;
+		form.rating = value.rating ?? 0;
 		form.description = value.description ?? "";
 		form.priceCategory = value.priceCategory ?? "";
 	},
@@ -110,8 +110,8 @@ const validate = () => {
 	if (!form.location || Object.keys(form.location).length === 0) errors.location = "Location is required";
 	if (!form.discoveredOn) errors.discoveredOn = "Discovery date is required";
 
-	if (form.rating === null || form.rating < 0 || form.rating > 7) {
-		errors.rating = "rating must be between 0 and 7";
+	if (form.rating === null || form.rating < 0 || form.rating > 5) {
+		errors.rating = "rating must be between 0 and 5";
 	}
 	if (!form.priceCategory) errors.priceCategory = "Price category is required";
 
@@ -292,7 +292,7 @@ const capitalize = str => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase
 				<div class="field">
 					<div class="rating-container">
 						<label for="rating">Rating</label>
-						<Rating id="rating" v-model="form.rating" :stars="7" />
+						<Rating id="rating" v-model="form.rating" :stars="5" />
 					</div>
 					<Message v-if="errors.rating" severity="error">{{ errors.rating }}</Message>
 				</div>
