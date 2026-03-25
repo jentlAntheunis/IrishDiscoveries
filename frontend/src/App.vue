@@ -23,8 +23,22 @@ import Footer from "@/components/Footer.vue";
 	display: grid;
 	grid-template-rows: 80px 1fr 60px;
 }
+
+header {
+	width: 100%;
+	position: sticky;
+	top: 0;
+	z-index: 100;
+}
 main {
 	width: 1000px;
 	margin: 0 auto;
+	margin-bottom: 2rem;
+}
+footer {
+	width: 100%;
+	position: sticky;
+	bottom: 0;
+	z-index: 100;
 }
 </style>
